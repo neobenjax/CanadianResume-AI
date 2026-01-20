@@ -1,10 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, UserProfile, initProfile } from '@/lib/db';
+import { db, UserProfile, initProfile, PROFILE_ID } from '@/lib/db';
 import { useEffect, useState } from 'react';
 
 export function useProfile() {
     // We explicitly query for key 1, assuming initProfile ensures it
-    const profile = useLiveQuery(() => db.user_profile.get(1));
+    const profile = useLiveQuery(() => db.user_profile.get(PROFILE_ID));
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {

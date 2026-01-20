@@ -22,7 +22,7 @@ export function DriveImportButton() {
 
                 if (profileData) {
                     // Update local DB
-                    await db.user_profile.put(profileData);
+                    await db.user_profile.put({ ...profileData, id: 1 });
                     // Redirect to dashboard
                     router.push('/dashboard');
                 } else {

@@ -24,6 +24,11 @@ export interface EducationItem {
     endDate: string;
 }
 
+export interface UserSkills {
+    technical: string[];
+    soft: string[];
+}
+
 export interface UserProfile {
     id?: number; // Should be 1 for the singleton profile
     contact: {
@@ -39,7 +44,7 @@ export interface UserProfile {
     education: EducationItem[];
     volunteering: ExperienceItem[];
     certifications: any[];
-    skills: string[]; // List of skill strings
+    skills: UserSkills; // CHANGED: Now an object with technical and soft arrays
     updatedAt: Date;
 }
 
@@ -61,21 +66,44 @@ export class MapleLeafDB extends Dexie {
     constructor() {
         super('MapleLeafDB');
 
-        // Schema migration: always add new versions for changes
+        // Version 1: Original Schema
         this.version(1).stores({
-            user_profile: '++id', // We generally query by simple .get(1)
+            user_profile: '++id',
             resumes: '++id, title, updatedAt'
+        });
+
+        // Version 2: Skills segmentation migration
+        this.version(2).stores({
+            user_profile: '++id',
+        }).upgrade(tx => {
+            return tx.table('user_profile').toCollection().modify(profile => {
+                // Check if skills is an array (Old format)
+                if (Array.isArray(profile.skills)) {
+                    // Move all existing string skills to 'technical' as a fallback safety
+                    // In a real app we might try to infer, but safety first.
+                    profile.skills = {
+                        technical: profile.skills,
+                        soft: []
+                    };
+                }
+            });
         });
     }
 }
 
 export const db = new MapleLeafDB();
 
+
+export const PROFILE_ID = 1;
+
 // Helper to ensure profile exists
 export async function initProfile() {
-    const count = await db.user_profile.count();
-    if (count === 0) {
-        await db.user_profile.add({
+    // Check for the specific profile ID 1
+    const profile = await db.user_profile.get(PROFILE_ID);
+
+    if (!profile) {
+        await db.user_profile.put({
+            id: PROFILE_ID,
             contact: {
                 fullName: '',
                 email: '',
@@ -87,7 +115,7 @@ export async function initProfile() {
             education: [],
             volunteering: [],
             certifications: [],
-            skills: [],
+            skills: { technical: [], soft: [] },
             updatedAt: new Date(),
         });
     }

@@ -8,7 +8,7 @@ import { NorthernButton } from '@/components/ui/NorthernButton';
 
 const NAV_ITEMS = [
     { label: 'My Resumes', href: '/dashboard', icon: FileText },
-    { label: 'My Profile', href: '/wizard', icon: User }, // Reuse wizard as profile editor
+    { label: 'My Profile', href: '/dashboard/profile', icon: User }, // Updated to Profile View
     { label: 'Settings', href: '/settings', icon: Settings },
 ];
 

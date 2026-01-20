@@ -6,7 +6,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex min-h-screen bg-slate-50 relative">
+        <div className="flex min-h-screen bg-slate-950 relative">
             {/* Mesh Gradient Overlay for Dashboard specifically if needed, but RootLayout has it */}
             <Sidebar />
             <main className="flex-1 p-6 md:p-10 h-screen overflow-y-auto">
