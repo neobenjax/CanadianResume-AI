@@ -34,8 +34,13 @@ export function EducationStep({ onNext, onBack }: { onNext: () => void, onBack: 
         }
     }, [debouncedValues, updateSection, isLoading, profile]);
 
+    const onSubmit = async (data: EducationFormData) => {
+        await updateSection('education', data.education);
+        onNext();
+    };
+
     return (
-        <form onSubmit={form.handleSubmit(onNext)} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <EducationForm form={form} />
 
             <div className="flex justify-between pt-6">

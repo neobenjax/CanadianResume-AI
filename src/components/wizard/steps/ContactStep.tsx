@@ -36,7 +36,8 @@ export function ContactStep({ onNext }: { onNext: () => void }) {
         }
     }, [debouncedValues, updateContact, isLoading, profile]);
 
-    const onSubmit = (data: ContactFormData) => {
+    const onSubmit = async (data: ContactFormData) => {
+        await updateContact(data);
         onNext();
     };
 

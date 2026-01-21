@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - "STAR Method" (Situation, Task, Action, Result) helper tooltips.
   - Flexible location fields (Country, State, City) for international compatibility.
 - **Design System**: "Northern Aurora" theme implementation with Tailwind CSS 4 variables and glassmorphism effects.
+- **Onboarding Improvements**:
+  - Implemented auto-redirect to Dashboard for returning users.
+  - Added "Clean Slate" functionality: "Create My Profile" now ensures a fresh start by clearing previous local data.
 
 ### Fixed
 - Resolved Tailwind CSS `@tailwind` directive errors in `globals.css` configuration.

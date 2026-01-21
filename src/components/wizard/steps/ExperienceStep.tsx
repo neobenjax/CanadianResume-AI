@@ -48,7 +48,15 @@ export function ExperienceStep({ onNext, onBack }: { onNext: () => void, onBack:
         }
     }, [debouncedValues, updateSection, isLoading, profile, loaded]);
 
-    const onSubmit = () => {
+    const onSubmit = async (data: ExperienceFormData) => {
+        // Explicit save before navigation to ensure no data loss
+        const toSave = data.experience?.map(item => ({
+            ...item,
+            province: item.province || '',
+            country: item.country || 'Canada',
+            achievements: item.achievements?.filter(a => a.trim()) || []
+        }));
+        await updateSection('experience', toSave);
         onNext();
     };
 

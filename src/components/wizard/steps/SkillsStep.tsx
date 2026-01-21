@@ -28,6 +28,11 @@ export function SkillsStep({ onNext, onBack }: { onNext: () => void, onBack: () 
         updateSection('skills', newSkills);
     };
 
+    const onFinish = async () => {
+        await updateSection('skills', currentSkills);
+        onNext();
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <SkillsForm
@@ -39,7 +44,7 @@ export function SkillsStep({ onNext, onBack }: { onNext: () => void, onBack: () 
                 <NorthernButton type="button" variant="ghost" onClick={onBack}>
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                 </NorthernButton>
-                <NorthernButton type="button" onClick={onNext} className="shadow-glow-primary bg-gradient-to-r from-primary-600 to-accent-600 border-none">
+                <NorthernButton type="button" onClick={onFinish} className="shadow-glow-primary bg-gradient-to-r from-primary-600 to-accent-600 border-none">
                     Finish Profile <Check className="w-4 h-4 ml-2" />
                 </NorthernButton>
             </div>

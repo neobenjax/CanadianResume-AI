@@ -120,3 +120,14 @@ export async function initProfile() {
         });
     }
 }
+
+// Helper to reset the profile (Clean Slate)
+export async function resetProfile() {
+    await db.user_profile.clear();
+    // We don't re-init here. We let the next page load (Wizard or Dashboard) handle init if needed,
+    // or specifically the Wizard will start fresh. 
+    // Actually, initProfile() checks if it exists, so if we clear it, initProfile will create a blank one.
+    // But for the "Wizard" flow, we want it empty so the Wizard can verify.
+    // However, the Wizard steps often rely on useProfile() which calls initProfile(). 
+    // So clearing it is enough; the next component to load useProfile will create a fresh blank one.
+}
