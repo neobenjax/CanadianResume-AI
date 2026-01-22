@@ -7,14 +7,12 @@ import { TECHNICAL_SKILLS, SOFT_SKILLS } from '@/constants/skills';
 import { UserSkills } from '@/lib/db';
 
 interface SkillsFormProps {
-    initialSkills: UserSkills;
+    skills: UserSkills;
     onChange: (skills: UserSkills) => void;
     className?: string;
 }
 
-export function SkillsForm({ initialSkills, onChange, className }: SkillsFormProps) {
-    const [skills, setSkills] = useState<UserSkills>(initialSkills);
-
+export function SkillsForm({ skills, onChange, className }: SkillsFormProps) {
     // Technical Skills State
     const [techInput, setTechInput] = useState('');
     const [techSuggestions, setTechSuggestions] = useState<string[]>([]);
@@ -25,16 +23,13 @@ export function SkillsForm({ initialSkills, onChange, className }: SkillsFormPro
     const [softSuggestions, setSoftSuggestions] = useState<string[]>([]);
     const [activeSoftIndex, setActiveSoftIndex] = useState(-1);
 
-    useEffect(() => {
-        setSkills(initialSkills);
-    }, [initialSkills]);
-
     const updateSkills = (newSkills: UserSkills) => {
-        setSkills(newSkills);
         onChange(newSkills);
     };
 
     // --- Technical Skills Logic ---
+
+    // Effect 1: Filter Suggestions (Runs when input or skills change)
     useEffect(() => {
         if (techInput.length > 0) {
             const matched = TECHNICAL_SKILLS.filter(s =>
@@ -42,11 +37,15 @@ export function SkillsForm({ initialSkills, onChange, className }: SkillsFormPro
                 !skills.technical.includes(s)
             ).slice(0, 6);
             setTechSuggestions(matched);
-            setActiveTechIndex(-1);
         } else {
             setTechSuggestions([]);
         }
     }, [techInput, skills.technical]);
+
+    // Effect 2: Reset Active Index (Runs ONLY when input changes)
+    useEffect(() => {
+        setActiveTechIndex(-1);
+    }, [techInput]);
 
     const addTechSkill = (skill: string) => {
         if (!skills.technical.includes(skill)) {
@@ -80,6 +79,8 @@ export function SkillsForm({ initialSkills, onChange, className }: SkillsFormPro
     };
 
     // --- Soft Skills Logic ---
+
+    // Effect 1: Filter Suggestions
     useEffect(() => {
         if (softInput.length > 0) {
             const matched = SOFT_SKILLS.filter(s =>
@@ -87,11 +88,15 @@ export function SkillsForm({ initialSkills, onChange, className }: SkillsFormPro
                 !skills.soft.includes(s)
             ).slice(0, 6);
             setSoftSuggestions(matched);
-            setActiveSoftIndex(-1);
         } else {
             setSoftSuggestions([]);
         }
     }, [softInput, skills.soft]);
+
+    // Effect 2: Reset Active Index
+    useEffect(() => {
+        setActiveSoftIndex(-1);
+    }, [softInput]);
 
     const addSoftSkill = (skill: string) => {
         if (!skills.soft.includes(skill)) {

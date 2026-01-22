@@ -4,29 +4,33 @@ import { useProfile } from '@/hooks/use-profile';
 import { useEffect, useState } from 'react';
 import { NorthernButton } from '@/components/ui/NorthernButton';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { EducationForm, educationFormSchema, EducationFormData } from '@/components/forms/EducationForm';
+import { CertificationsForm, certificationsFormSchema, CertificationsFormData } from '@/components/forms/CertificationsForm';
 
-export function EducationStep({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
+export function CertificationsStep({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
     const { profile, updateSection, isLoading } = useProfile();
 
-    const form = useForm<EducationFormData>({
-        resolver: zodResolver(educationFormSchema),
+    const form = useForm<CertificationsFormData>({
+        resolver: zodResolver(certificationsFormSchema),
         defaultValues: {
-            education: []
+            certifications: []
         }
     });
 
+    // Load initial data
     const [loaded, setLoaded] = useState(false);
     useEffect(() => {
-        if (profile && !loaded) {
-            form.reset({ education: profile.education || [] });
+        if (profile?.certifications && !loaded) {
+            form.reset({ certifications: profile.certifications });
+            setLoaded(true);
+        } else if (profile && !profile.certifications && !loaded) {
+            form.reset({ certifications: [] });
             setLoaded(true);
         }
     }, [profile, form, loaded]);
 
     const saveDraft = async () => {
         const currentData = form.getValues();
-        await updateSection('education', currentData.education);
+        await updateSection('certifications', currentData.certifications);
     };
 
     const handleBack = async () => {
@@ -34,8 +38,8 @@ export function EducationStep({ onNext, onBack }: { onNext: () => void, onBack: 
         onBack();
     };
 
-    const onSubmit = async (data: EducationFormData) => {
-        await updateSection('education', data.education);
+    const onSubmit = async (data: CertificationsFormData) => {
+        await updateSection('certifications', data.certifications);
         onNext();
     };
 
@@ -43,7 +47,7 @@ export function EducationStep({ onNext, onBack }: { onNext: () => void, onBack: 
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <EducationForm form={form} />
+            <CertificationsForm form={form} />
 
             <div className="flex justify-between pt-6">
                 <NorthernButton type="button" variant="ghost" onClick={handleBack}>

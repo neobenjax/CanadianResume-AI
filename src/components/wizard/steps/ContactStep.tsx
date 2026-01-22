@@ -2,7 +2,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useProfile } from '@/hooks/use-profile';
 import { useEffect, useState } from 'react';
-import { useDebounce } from '@/hooks/use-debounce';
 import { NorthernButton } from '@/components/ui/NorthernButton';
 import { ArrowRight } from 'lucide-react';
 import { ContactForm, contactSchema, ContactFormData } from '@/components/forms/ContactForm';
@@ -20,21 +19,14 @@ export function ContactStep({ onNext }: { onNext: () => void }) {
     // Load initial data
     const [loaded, setLoaded] = useState(false);
     useEffect(() => {
-        if (profile?.contact && !loaded) {
-            form.reset(profile.contact);
+        if (profile && !loaded) {
+            const defaultContact = {
+                fullName: '', email: '', phone: '', city: '', province: '', linkedin: '', website: ''
+            };
+            form.reset(profile.contact || defaultContact);
             setLoaded(true);
         }
     }, [profile, form, loaded]);
-
-    // Debounced Auto-save
-    const watchedValues = form.watch();
-    const debouncedValues = useDebounce(watchedValues, 1000);
-
-    useEffect(() => {
-        if (!isLoading && profile) {
-            updateContact(debouncedValues);
-        }
-    }, [debouncedValues, updateContact, isLoading, profile]);
 
     const onSubmit = async (data: ContactFormData) => {
         await updateContact(data);

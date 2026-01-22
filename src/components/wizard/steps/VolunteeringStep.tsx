@@ -4,44 +4,44 @@ import { useProfile } from '@/hooks/use-profile';
 import { useEffect, useState } from 'react';
 import { NorthernButton } from '@/components/ui/NorthernButton';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { ExperienceForm, experienceFormSchema, ExperienceFormData } from '@/components/forms/ExperienceForm';
+import { VolunteeringForm, volunteeringFormSchema, VolunteeringFormData } from '@/components/forms/VolunteeringForm';
 
-export function ExperienceStep({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
+export function VolunteeringStep({ onNext, onBack }: { onNext: () => void, onBack: () => void }) {
     const { profile, updateSection, isLoading } = useProfile();
 
-    const form = useForm<ExperienceFormData>({
-        resolver: zodResolver(experienceFormSchema),
+    const form = useForm<VolunteeringFormData>({
+        resolver: zodResolver(volunteeringFormSchema),
         defaultValues: {
-            experience: []
+            volunteering: []
         }
     });
 
     // Load initial data
     const [loaded, setLoaded] = useState(false);
     useEffect(() => {
-        if (profile && !loaded) {
-            const safeExperience = profile.experience || [];
-            const mapped = safeExperience.map(item => ({
+        if (profile?.volunteering && !loaded) {
+            const mapped = profile.volunteering.map(item => ({
                 ...item,
                 achievements: item.achievements || []
             }));
-            form.reset({ experience: mapped });
+            form.reset({ volunteering: mapped });
+            setLoaded(true);
+        } else if (profile && !profile.volunteering && !loaded) {
+            // Handle case where volunteering array might be undefined in old profiles
+            form.reset({ volunteering: [] });
             setLoaded(true);
         }
     }, [profile, form, loaded]);
 
     const saveDraft = async () => {
-        // Save whatever is in the form, even if invalid (semantically for draft), 
-        // but typically we want it to be valid enough for DB. 
-        // Dexie stores simplified types, so basic mapping is fine.
         const currentData = form.getValues();
-        const toSave = currentData.experience?.map(item => ({
+        const toSave = currentData.volunteering?.map(item => ({
             ...item,
             province: item.province || '',
             country: item.country || 'Canada',
             achievements: item.achievements?.filter(a => a.trim()) || []
         })) || [];
-        await updateSection('experience', toSave);
+        await updateSection('volunteering', toSave);
     };
 
     const handleBack = async () => {
@@ -49,15 +49,14 @@ export function ExperienceStep({ onNext, onBack }: { onNext: () => void, onBack:
         onBack();
     };
 
-    const onSubmit = async (data: ExperienceFormData) => {
-        // Explicit save before navigation to ensure no data loss
-        const toSave = data.experience?.map(item => ({
+    const onSubmit = async (data: VolunteeringFormData) => {
+        const toSave = data.volunteering?.map(item => ({
             ...item,
             province: item.province || '',
             country: item.country || 'Canada',
             achievements: item.achievements?.filter(a => a.trim()) || []
         }));
-        await updateSection('experience', toSave);
+        await updateSection('volunteering', toSave);
         onNext();
     };
 
@@ -65,7 +64,7 @@ export function ExperienceStep({ onNext, onBack }: { onNext: () => void, onBack:
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <ExperienceForm form={form} />
+            <VolunteeringForm form={form} />
 
             <div className="flex justify-between pt-6">
                 <NorthernButton type="button" variant="ghost" onClick={handleBack}>

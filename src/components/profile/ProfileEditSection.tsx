@@ -8,10 +8,12 @@ import { ContactForm, contactSchema, ContactFormData } from '@/components/forms/
 import { ExperienceForm, experienceFormSchema, ExperienceFormData } from '@/components/forms/ExperienceForm';
 import { EducationForm, educationFormSchema, EducationFormData } from '@/components/forms/EducationForm';
 import { SkillsForm } from '@/components/forms/SkillsForm';
+import { VolunteeringForm, volunteeringFormSchema, VolunteeringFormData } from '@/components/forms/VolunteeringForm';
+import { CertificationsForm, certificationsFormSchema, CertificationsFormData } from '@/components/forms/CertificationsForm';
 import { UserSkills } from '@/lib/db';
 
 interface ProfileEditSectionProps {
-    section: 'contact' | 'experience' | 'education' | 'skills' | null;
+    section: 'contact' | 'experience' | 'education' | 'skills' | 'volunteering' | 'certifications' | null;
     onClose: () => void;
 }
 
@@ -25,13 +27,17 @@ export function ProfileEditSection({ section, onClose }: ProfileEditSectionProps
                 section === 'contact' ? 'Edit Contact Info' :
                     section === 'experience' ? 'Edit Experience' :
                         section === 'education' ? 'Edit Education' :
-                            'Edit Skills'
+                            section === 'volunteering' ? 'Edit Volunteering' :
+                                section === 'certifications' ? 'Edit Certifications' :
+                                    'Edit Skills'
             }
         >
             {section === 'contact' && <ContactEditor onClose={onClose} />}
             {section === 'experience' && <ExperienceEditor onClose={onClose} />}
             {section === 'education' && <EducationEditor onClose={onClose} />}
             {section === 'skills' && <SkillsEditor onClose={onClose} />}
+            {section === 'volunteering' && <VolunteeringEditor onClose={onClose} />}
+            {section === 'certifications' && <CertificationsEditor onClose={onClose} />}
         </Modal>
     );
 }
@@ -148,7 +154,7 @@ function SkillsEditor({ onClose }: { onClose: () => void }) {
     return (
         <div className="space-y-6">
             <SkillsForm
-                initialSkills={currentSkills}
+                skills={currentSkills}
                 onChange={setCurrentSkills}
             />
             <div className="flex justify-end pt-4">
@@ -156,4 +162,64 @@ function SkillsEditor({ onClose }: { onClose: () => void }) {
             </div>
         </div>
     )
+}
+
+function VolunteeringEditor({ onClose }: { onClose: () => void }) {
+    const { profile, updateSection } = useProfile();
+    const form = useForm<VolunteeringFormData>({
+        resolver: zodResolver(volunteeringFormSchema),
+        defaultValues: { volunteering: [] }
+    });
+
+    useEffect(() => {
+        if (profile?.volunteering) {
+            const mapped = profile.volunteering.map(item => ({
+                ...item,
+                achievements: item.achievements || []
+            }));
+            form.reset({ volunteering: mapped });
+        }
+    }, [profile, form]);
+
+    const onSubmit = async (data: VolunteeringFormData) => {
+        await updateSection('volunteering', data.volunteering);
+        onClose();
+    };
+
+    return (
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <VolunteeringForm form={form} />
+            <div className="flex justify-end pt-4">
+                <NorthernButton type="submit">Save Changes</NorthernButton>
+            </div>
+        </form>
+    );
+}
+
+function CertificationsEditor({ onClose }: { onClose: () => void }) {
+    const { profile, updateSection } = useProfile();
+    const form = useForm<CertificationsFormData>({
+        resolver: zodResolver(certificationsFormSchema),
+        defaultValues: { certifications: [] }
+    });
+
+    useEffect(() => {
+        if (profile?.certifications) {
+            form.reset({ certifications: profile.certifications });
+        }
+    }, [profile, form]);
+
+    const onSubmit = async (data: CertificationsFormData) => {
+        await updateSection('certifications', data.certifications);
+        onClose();
+    };
+
+    return (
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <CertificationsForm form={form} />
+            <div className="flex justify-end pt-4">
+                <NorthernButton type="submit">Save Changes</NorthernButton>
+            </div>
+        </form>
+    );
 }

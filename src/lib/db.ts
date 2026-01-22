@@ -24,6 +24,14 @@ export interface EducationItem {
     endDate: string;
 }
 
+export interface CertificationItem {
+    id: string;
+    name: string;
+    issuer: string;
+    date: string;
+    expiryDate?: string;
+}
+
 export interface UserSkills {
     technical: string[];
     soft: string[];
@@ -43,7 +51,7 @@ export interface UserProfile {
     experience: ExperienceItem[];
     education: EducationItem[];
     volunteering: ExperienceItem[];
-    certifications: any[];
+    certifications: CertificationItem[];
     skills: UserSkills; // CHANGED: Now an object with technical and soft arrays
     updatedAt: Date;
 }
@@ -86,6 +94,16 @@ export class MapleLeafDB extends Dexie {
                         soft: []
                     };
                 }
+            });
+        });
+
+        // Version 3: Ensure new arrays exist
+        this.version(3).stores({
+            user_profile: '++id',
+        }).upgrade(tx => {
+            return tx.table('user_profile').toCollection().modify(profile => {
+                if (!profile.volunteering) profile.volunteering = [];
+                if (!profile.certifications) profile.certifications = [];
             });
         });
     }

@@ -1,7 +1,9 @@
 import { UserProfile } from "@/lib/db";
 
 export function buildCanadianizerPrompt(profile: UserProfile, jobDescription: string) {
-    const skills = profile.skills.join(', ');
+    const technicalSkills = Array.isArray(profile.skills.technical) ? profile.skills.technical.join(', ') : '';
+    const softSkills = Array.isArray(profile.skills.soft) ? profile.skills.soft.join(', ') : '';
+    const skills = `Technical: ${technicalSkills}\nSoft Skills: ${softSkills}`;
     const experience = profile.experience.map(exp => `
     - Role: ${exp.role} at ${exp.company} (${exp.startDate} to ${exp.endDate || 'Present'})
     - Location: ${exp.city}, ${exp.province}

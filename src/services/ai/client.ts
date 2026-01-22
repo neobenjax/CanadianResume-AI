@@ -17,13 +17,14 @@ export async function generateResumeContent(profile: UserProfile, jobDescription
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Valid JSON Mock Data
+    const techSkills = profile.skills.technical || [];
     return {
-        summary: `Results-oriented ${profile.experience[0]?.role} with over 5 years of experience in the Canadian tech sector. Proven track record in delivery high-quality solutions using ${profile.skills.slice(0, 3).join(', ')}.`,
+        summary: `Results-oriented ${profile.experience[0]?.role} with over 5 years of experience in the Canadian tech sector. Proven track record in delivery high-quality solutions using ${techSkills.slice(0, 3).join(', ')}.`,
         experience: profile.experience.map(exp => ({
             role: exp.role,
             company: exp.company,
             points: [
-                `Utilized ${profile.skills[0]} to enhance system performance by 15%, demonstrating strong technical proficiency.`,
+                `Utilized ${techSkills[0] || 'modern technologies'} to enhance system performance by 15%, demonstrating strong technical proficiency.`,
                 `Collaborated within a cross-functional team in ${exp.city} to deliver project milestones ahead of schedule.`,
                 `Led the implementation of key features which resulted in increased user engagement.`
             ]

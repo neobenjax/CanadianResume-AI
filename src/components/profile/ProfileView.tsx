@@ -11,7 +11,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 
 export function ProfileView() {
     const { profile, isLoading } = useProfile();
-    const [editingSection, setEditingSection] = useState<'contact' | 'experience' | 'education' | 'skills' | null>(null);
+    const [editingSection, setEditingSection] = useState<'contact' | 'experience' | 'education' | 'skills' | 'volunteering' | 'certifications' | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isSynced, setIsSynced] = useState(false);
 
@@ -152,6 +152,62 @@ export function ProfileView() {
                             </span>
                         </div>
                     ))}
+                </div>
+            </GlassCard>
+
+            {/* Volunteering Section */}
+            <GlassCard className="relative group">
+                <button
+                    onClick={() => setEditingSection('volunteering')}
+                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-primary-400 transition-colors bg-white/5 rounded-lg opacity-0 group-hover:opacity-100"
+                >
+                    <Edit2 className="w-4 h-4" />
+                </button>
+                <h3 className="text-lg font-semibold text-primary-300 mb-4 border-b border-white/10 pb-2">Volunteering</h3>
+                <div className="space-y-6">
+                    {(!profile.volunteering || profile.volunteering.length === 0) && <p className="text-slate-500 italic">No volunteering added.</p>}
+                    {profile.volunteering?.map((vol) => (
+                        <div key={vol.id} className="relative pl-4 border-l-2 border-slate-700">
+                            <div className="flex justify-between items-start mb-1">
+                                <h4 className="font-medium text-white text-lg">{vol.role}</h4>
+                                <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                                    {vol.startDate} - {vol.endDate || 'Present'}
+                                </span>
+                            </div>
+                            <div className="text-primary-400 text-sm mb-2">{vol.company} • {vol.city}, {vol.country}</div>
+                            <ul className="list-disc list-inside text-slate-400 text-sm space-y-1">
+                                {vol.achievements?.map((ach, i) => (
+                                    <li key={i}>{ach}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+            </GlassCard>
+
+            {/* Certifications Section */}
+            <GlassCard className="relative group">
+                <button
+                    onClick={() => setEditingSection('certifications')}
+                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-primary-400 transition-colors bg-white/5 rounded-lg opacity-0 group-hover:opacity-100"
+                >
+                    <Edit2 className="w-4 h-4" />
+                </button>
+                <h3 className="text-lg font-semibold text-primary-300 mb-4 border-b border-white/10 pb-2">Certifications</h3>
+                <div className="space-y-4">
+                    {(!profile.certifications || profile.certifications.length === 0) && <p className="text-slate-500 italic">No certifications added.</p>}
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {profile.certifications?.map((cert) => (
+                            <div key={cert.id} className="p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                                <h4 className="font-medium text-white text-sm mb-1">{cert.name}</h4>
+                                <div className="text-slate-400 text-xs mb-2">{cert.issuer}</div>
+                                <div className="flex gap-3 text-xs text-slate-500">
+                                    <span>Issued: {cert.date}</span>
+                                    {cert.expiryDate && <span>Expires: {cert.expiryDate}</span>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </GlassCard>
 

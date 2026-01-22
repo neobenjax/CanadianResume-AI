@@ -1,0 +1,205 @@
+import { UseFormReturn, useFieldArray } from 'react-hook-form';
+import { z } from 'zod';
+import { GlowInput } from '@/components/ui/GlowInput';
+import { Plus, Trash2, X } from 'lucide-react';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { PROVINCES_STATES, COUNTRIES, DEFAULT_COUNTRY } from '@/constants/locations';
+import { experienceItemSchema } from './ExperienceForm'; // Reuse schema base
+
+export const volunteeringFormSchema = z.object({
+    volunteering: z.array(experienceItemSchema),
+});
+
+export type VolunteeringFormData = z.infer<typeof volunteeringFormSchema>;
+
+const generateId = () => Math.random().toString(36).substring(2, 9);
+
+interface VolunteeringFormProps {
+    form: UseFormReturn<VolunteeringFormData>;
+    className?: string;
+}
+
+export function VolunteeringForm({ form, className }: VolunteeringFormProps) {
+    const { register, control, watch, setValue, formState: { errors } } = form;
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "volunteering"
+    });
+
+    const watchedValues = watch();
+
+    return (
+        <div className={`space-y-6 ${className}`}>
+            <div className="space-y-6">
+                {fields.map((field, index) => {
+                    const achievements = watchedValues.volunteering?.[index]?.achievements || [];
+                    const country = watchedValues.volunteering?.[index]?.country;
+                    const provinces = (country && PROVINCES_STATES[country]) || [];
+
+                    const addAchievement = () => {
+                        const current = form.getValues(`volunteering.${index}.achievements`) || [];
+                        setValue(`volunteering.${index}.achievements`, [...current, '']);
+                    };
+
+                    const removeAchievement = (aIndex: number) => {
+                        const current = form.getValues(`volunteering.${index}.achievements`) || [];
+                        const updated = current.filter((_, i) => i !== aIndex);
+                        setValue(`volunteering.${index}.achievements`, updated);
+                    };
+
+                    return (
+                        <GlassCard key={field.id} className="relative group">
+                            <div className="absolute top-4 right-4 z-10">
+                                <button
+                                    type="button"
+                                    onClick={() => remove(index)}
+                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <h3 className="text-lg font-semibold text-primary-300 mb-6">Volunteer Role {index + 1}</h3>
+
+                            <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                <GlowInput
+                                    label="Role / Title"
+                                    {...register(`volunteering.${index}.role`)}
+                                    error={errors.volunteering?.[index]?.role?.message}
+                                    textClassName="text-slate-100"
+                                />
+                                <GlowInput
+                                    label="Organization"
+                                    {...register(`volunteering.${index}.company`)}
+                                    error={errors.volunteering?.[index]?.company?.message}
+                                    textClassName="text-slate-100"
+                                />
+                            </div>
+
+                            {/* Location Fields */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-200 ml-1">Country</label>
+                                    <div className="relative">
+                                        <select
+                                            {...register(`volunteering.${index}.country`)}
+                                            className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary-500/50 outline-none appearance-none cursor-pointer transition-all hover:border-primary-500 text-slate-100 placeholder:text-slate-500"
+                                        >
+                                            {COUNTRIES.map(c => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {provinces.length > 0 ? (
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-slate-200 ml-1">Province/State</label>
+                                        <div className="relative">
+                                            <select
+                                                {...register(`volunteering.${index}.province`)}
+                                                className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary-500/50 outline-none appearance-none cursor-pointer transition-all hover:border-primary-500 text-slate-100 placeholder:text-slate-500"
+                                            >
+                                                <option value="">Select...</option>
+                                                {provinces.map(prov => (
+                                                    <option key={prov} value={prov}>{prov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <GlowInput
+                                        label="State/Region"
+                                        {...register(`volunteering.${index}.province`)}
+                                        textClassName="text-slate-100"
+                                    />
+                                )}
+
+                                <GlowInput
+                                    label="City"
+                                    {...register(`volunteering.${index}.city`)}
+                                    textClassName="text-slate-100"
+                                />
+                            </div>
+
+                            {/* Dates */}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-200 ml-1">Start Date</label>
+                                    <input
+                                        type="month"
+                                        {...register(`volunteering.${index}.startDate`)}
+                                        className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary-500/50 outline-none text-slate-100 [color-scheme:dark]"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-200 ml-1">End Date</label>
+                                    <input
+                                        type="month"
+                                        {...register(`volunteering.${index}.endDate`)}
+                                        className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 focus:ring-2 focus:ring-primary-500/50 outline-none text-slate-100 [color-scheme:dark]"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-slate-200 ml-1">
+                                    Impact & Contributions
+                                </label>
+                                <div className="space-y-2">
+                                    {achievements.map((_, aIndex) => (
+                                        <div key={aIndex} className="flex gap-2 items-start">
+                                            <GlowInput
+                                                {...register(`volunteering.${index}.achievements.${aIndex}`)}
+                                                placeholder={`Contribution ${aIndex + 1}`}
+                                                className="flex-1"
+                                                textClassName="text-slate-100"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeAchievement(aIndex)}
+                                                className="mt-3 p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={addAchievement}
+                                        className="text-sm text-primary-400 hover:text-primary-300 font-medium ml-1 flex items-center gap-1 mt-2"
+                                    >
+                                        <Plus className="w-3 h-3" /> Add Contribution
+                                    </button>
+                                </div>
+                            </div>
+                        </GlassCard>
+                    )
+                })}
+
+                <button
+                    type="button"
+                    onClick={() => append({
+                        id: generateId(),
+                        role: '',
+                        company: '',
+                        country: DEFAULT_COUNTRY,
+                        city: '',
+                        province: '',
+                        startDate: '',
+                        endDate: '',
+                        isCurrent: false,
+                        achievements: ['']
+                    })}
+                    className="w-full py-4 border-2 border-dashed border-slate-700 rounded-xl text-slate-400 font-medium hover:bg-slate-800/50 hover:text-primary-400 hover:border-primary-500/50 transition-all flex items-center justify-center gap-2"
+                >
+                    <Plus className="w-5 h-5" /> Add Volunteer Role
+                </button>
+            </div>
+        </div>
+    );
+}
