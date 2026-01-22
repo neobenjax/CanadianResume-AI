@@ -50,6 +50,13 @@ This section documents the specific challenges encountered and solved during the
     *   Configured specific scopes (`https://www.googleapis.com/auth/drive.appdata`).
     *   Implemented the `DriveService` to handle token management and invisible file creation in the hidden App Data folder.
 
+#### 3. Wizard State Management & Persistence
+*   **Issue**: Users experienced data loss when navigating between wizard steps rapidly. The debounced "auto-save" mechanism created a race condition with the "load-on-mount" database logic, causing empty default states to overwrite existing data.
+*   **Resolution**:
+    *   **Architecture Shift**: Moved from "Auto-save as you type" to "Explicit Save on Navigation".
+    *   **Refactor**: Updated `Contact`, `Experience`, `Education`, and all other steps/forms.
+    *   **Logic**: Data is now strictly loaded on mount (with robust guards against accidental overwrites) and only saved to DexieDB when "Next" or "Back" buttons are clicked.
+
 ### 💡 Refinements & Improvements
 
 #### 1. Experience Section Polish
@@ -65,9 +72,16 @@ This section documents the specific challenges encountered and solved during the
     *   Connects to OpenAI via Vercel AI SDK.
     *   Prompts specifically tuned to "Canadianize" text (British spelling, objective tone, removing personal pronouns).
 
+#### 3. Profile Completeness
+*   **Context**: Missing key sections like Volunteering and Certifications.
+*   **Improvements**:
+    *   Added `volunteering` and `certifications` arrays to the `UserProfile` schema (v3 migration).
+    *   Implemented dedicated UI cards and Edit Modals for these sections in `ProfileView`.
+    *   Integrated into the Wizard flow.
+
 ## 4. Current State
 
-The application has reached **Version 1.0.0**. 
+The application has reached **Version 1.1.0**. 
 
 - **Status**: Stable & Deployment Ready.
 - **Missing/WIP**: 
