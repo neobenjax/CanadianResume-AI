@@ -20,8 +20,8 @@ To fully enable external services, you must configure the following in `.env.loc
 # For Google Drive Sync
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
-# For AI Features (The Canadianizer)
-OPENAI_API_KEY=sk-...
+# For AI Features (The Canadianizer - Power by Gemini)
+GOOGLE_GENERATIVE_AI_API_KEY=AIza...
 ```
 
 ## 3. How to Run
@@ -36,7 +36,7 @@ OPENAI_API_KEY=sk-...
 - `src/components/profile/ProfileView.tsx`: Enhanced profile display.
 
 ## 5. Next Steps for You
-- Sign up for OpenAI and Google Cloud Platform to get API keys.
+- Sign up for Google AI Studio (Gemini) and Google Cloud Platform to get API keys.
 - Test the application in an offline environment (Disconnect internet and refresh).
 - Deploy to Vercel (Optional).
 

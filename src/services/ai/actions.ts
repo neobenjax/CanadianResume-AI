@@ -1,7 +1,7 @@
 'use server';
 
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { z } from 'zod';
 import { UserProfile } from '@/lib/db';
 import { buildCanadianizerPrompt } from './prompt-builder';
@@ -21,11 +21,11 @@ export async function generateTailoredContent(
     jobDescription: string,
     apiKey?: string
 ) {
-    // In a real app, you might use process.env.OPENAI_API_KEY
+    // In a real app, you might use process.env.GOOGLE_GENERATIVE_AI_API_KEY
     // For this local-first app, we might accept it from the client if the user provides it,
     // OR rely on the server env.
 
-    const keyToUse = apiKey || process.env.OPENAI_API_KEY;
+    const keyToUse = apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (!keyToUse) {
         // Return mock data if no key is present, to ensure the UI works for the demo
@@ -43,18 +43,24 @@ export async function generateTailoredContent(
         };
     }
 
-    // If we had the real SDK installed, we would run this:
-    /*
+    // If we have the key, we run the real AI generation
     const prompt = buildCanadianizerPrompt(profile, jobDescription);
-    
-    const { object } = await generateObject({
-      model: openai('gpt-4o'),
-      schema: resumeContentSchema,
-      prompt: prompt,
-    });
-  
-    return object;
-    */
 
-    throw new Error("Real AI generation requires 'ai' and '@ai-sdk/openai' packages which are not fully configured in this scaffold yet. Please use the Mock mode or install these packages.");
+    // Create a Google instance with the specific key
+    const google = createGoogleGenerativeAI({
+        apiKey: keyToUse,
+    });
+
+    try {
+        const { object } = await generateObject({
+            model: google('gemini-1.5-flash'),
+            schema: resumeContentSchema,
+            prompt: prompt,
+        });
+
+        return object;
+    } catch (error) {
+        console.error("AI Generation Error:", error);
+        throw new Error("Failed to generate content. Please check your API key.");
+    }
 }
